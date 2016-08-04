@@ -78,14 +78,31 @@ void bubbleSort(int array[], int p, int q)
     for (i = q; i > p; i--) {
         sorted = 1;
         for (j = p; j < i; j++) {
-            if (array[j+1] > array[j]) {
+            if (array[j+1] < array[j]) {
                 sorted = 0;
-                array[j+1] ^= array[j];
-                array[j] ^= array[j+1];
-                array[j+1] ^= array[j];
+                int tmp = array[j+1];
+                array[j+1] = array[j];
+                array[j] = tmp;
             }
         }
         if (sorted) break;
+    }
+}
+
+void bubble2Sort(int array[], int p, int q)
+{
+    int i = q, j;
+    while (i > p) {
+        int pos = p;
+        for (j = p; j < i; j++) {
+            if (array[j+1] < array[j]) {
+                int tmp = array[j+1];
+                array[j+1] = array[j];
+                array[j] = tmp;
+                pos = j;
+            }
+        }
+        i = pos;
     }
 }
 
@@ -117,8 +134,8 @@ void shellSort(int array[], int p, int q)
 /* merge sort */
 void merge(int array[], int p, int r, int q)
 {
-    int *L = malloc(r-p+1);
-    int *R = malloc(q-r);
+    int *L = calloc(r-p+1, sizeof(int));
+    int *R = calloc(q-r, sizeof(int));
 
     int i;
     for (i = p; i <= r; i++) {
@@ -197,4 +214,112 @@ void quickSort(int array[], int p, int q)
         quickSort(array, p, r-1);
         quickSort(array, r+1, q);
     }
+}
+
+/* heap sort */
+void heapAdjust(int array[], int p, int q, int i)
+{
+    int child;
+    while ((child = 2*i-p+1) <= q) {
+        if (child < q && array[child+1] > array[child]) child++;
+        if (array[child] > array[i]) {
+            int tmp = array[i];
+            array[i] = array[child];
+            array[child] = tmp;
+            i = child;
+        } else {
+            break;
+        }
+    }
+}
+
+void heapSort(int array[], int p, int q)
+{
+    int i;
+    for (i = (p+q-1)/2; i >= 0; i--) {
+        heapAdjust(array, p, q, i);
+    }
+
+    for (i = q; i > p; i--) {
+        int tmp = array[p];
+        array[p] = array[i];
+        array[i] = tmp;
+        heapAdjust(array, p, i-1, p);
+    }
+}
+
+/* count sort */
+void countSort(int array[], int p, int q, int min, int max)
+{
+    int range = max-min+1;
+    int *C = calloc(range, sizeof(int));
+    int i;
+    for (i = 0; i < range; i++) {
+        C[i] = 0;
+    }
+
+    for (i = p; i <= q; i++) {
+        C[array[i]-min]++;
+    }
+
+    int j = 0;
+    for (i = 0; i < range; i++) {
+        while (C[i]>0) {
+            array[p+j] = min+i;
+            j++;
+            C[i]--;
+        }
+    }
+
+    free(C);
+}
+
+/* radix sort */
+void radixSort(int array[], int l, int b, int r)
+{
+    int k = 1<<r;
+    int m = k - 1;
+    int *R = calloc(k, sizeof(int));
+    int *C = calloc(l, sizeof(int));
+    
+    int *A = array;
+    int i, pos;
+    for (pos = 0; pos < b; pos += r) {
+        int c;
+        for (i = 0; i < k; i++) {
+            R[i] = 0;
+        }
+
+        for (i = 0; i < l; i++) {
+            c = (A[i]>>pos)&m;
+            R[c]++;
+        }
+
+        int count = 0;
+        for (i = 0; i < k; i++) {
+            if (R[i]) {
+                count += R[i];
+                R[i] = count;
+            }
+        }
+
+        for (i = l-1; i >= 0; i--) {
+            c = (A[i]>>pos)&m;
+            R[c]--;
+            C[R[c]] = A[i];
+        }
+
+        int *tmp = A;
+        A = C;
+        C = tmp;
+    }
+
+    if (A != array) {
+        for (i = 0; i < l; i++) {
+            A[i] = C[i];
+        }
+    }
+
+    free(R);
+    free(C);
 }

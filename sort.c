@@ -316,8 +316,9 @@ void radixSort(int array[], int l, int b, int r)
 
     if (A != array) {
         for (i = 0; i < l; i++) {
-            A[i] = C[i];
+            array[i] = A[i];
         }
+        C = A;
     }
 
     free(R);

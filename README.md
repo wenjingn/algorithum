@@ -4,4 +4,5 @@
 
 ![](http://latex.codecogs.com/gif.latex?\sum_{k=1}^n)
 
+\sum_{k=1}^n
 
